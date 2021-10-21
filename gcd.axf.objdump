@@ -1,0 +1,139 @@
+
+C:/Users/elpea/OneDrive/Documents/ECE346/proj1/gcd.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+.text		/* executable code follows */
+
+GCD:
+	POP		{R6}		// R6 = b
+   0:	e49d6004 	pop	{r6}		; (ldr r6, [sp], #4)
+	POP		{R5}		// R5 = a
+   4:	e49d5004 	pop	{r5}		; (ldr r5, [sp], #4)
+
+00000008 <LOOP>:
+	
+LOOP:
+	CMP		R5, R6		// compare a and b
+   8:	e1550006 	cmp	r5, r6
+	BEQ		END			// done if a = b
+   c:	0a000005 	beq	28 <END>
+	BPL		AB			// if a > b
+  10:	5a000000 	bpl	18 <AB>
+	B		REV			// else
+  14:	ea000001 	b	20 <REV>
+
+00000018 <AB>:
+	
+AB:
+	SUB		R5, R5, R6	// a = a - b
+  18:	e0455006 	sub	r5, r5, r6
+	B 		LOOP		// recursion
+  1c:	eafffff9 	b	8 <LOOP>
+
+00000020 <REV>:
+	
+REV:
+	SUB		R6, R6, R5	// b = b - a
+  20:	e0466005 	sub	r6, r6, r5
+	B		LOOP		// recursion
+  24:	eafffff7 	b	8 <LOOP>
+
+00000028 <END>:
+	
+END:
+	PUSH	{R5}		// push answer
+  28:	e52d5004 	push	{r5}		; (str r5, [sp, #-4]!)
+	BX LR				// return to main
+  2c:	e12fff1e 	bx	lr
+
+00000030 <GCD>:
+.text		/* executable code follows */
+
+GCD:
+	POP		{R6}		// R6 = b
+  30:	e49d6004 	pop	{r6}		; (ldr r6, [sp], #4)
+	POP		{R5}		// R5 = a
+  34:	e49d5004 	pop	{r5}		; (ldr r5, [sp], #4)
+
+00000038 <LOOP>:
+	
+LOOP:
+	CMP		R5, R6		// compare a and b
+  38:	e1550006 	cmp	r5, r6
+	BEQ		END			// done if a = b
+  3c:	0a000005 	beq	58 <END>
+	BPL		AB			// if a > b
+  40:	5a000000 	bpl	48 <AB>
+	B		REV			// else
+  44:	ea000001 	b	50 <REV>
+
+00000048 <AB>:
+	
+AB:
+	SUB		R5, R5, R6	// a = a - b
+  48:	e0455006 	sub	r5, r5, r6
+	B 		LOOP		// recursion
+  4c:	eafffff9 	b	38 <LOOP>
+
+00000050 <REV>:
+	
+REV:
+	SUB		R6, R6, R5	// b = b - a
+  50:	e0466005 	sub	r6, r6, r5
+	B		LOOP		// recursion
+  54:	eafffff7 	b	38 <LOOP>
+
+00000058 <END>:
+	
+END:
+	PUSH	{R5}		// push answer
+  58:	e52d5004 	push	{r5}		; (str r5, [sp, #-4]!)
+	BX LR				// return to main
+  5c:	e12fff1e 	bx	lr
+
+00000060 <_start>:
+.equ		DDR_END,	0x3FFFFFFF
+
+.text		/* executable code follows */
+.global		_start
+_start:
+	MOV		SP, #DDR_END - 3
+  60:	e3e0d10f 	mvn	sp, #-1073741821	; 0xc0000003
+	LDR		R1, a			// R1 = a
+  64:	e59f101c 	ldr	r1, [pc, #28]	; 88 <a>
+	LDR		R2, b			// R2 = b
+  68:	e59f201c 	ldr	r2, [pc, #28]	; 8c <b>
+	
+	PUSH	{R1}			// push a
+  6c:	e52d1004 	push	{r1}		; (str r1, [sp, #-4]!)
+	PUSH	{R2}			// push b
+  70:	e52d2004 	push	{r2}		; (str r2, [sp, #-4]!)
+	
+	BL		GCD				// call subroutine
+  74:	ebffffed 	bl	30 <GCD>
+	
+	POP		{R3}			// R3 = ANSWER
+  78:	e49d3004 	pop	{r3}		; (ldr r3, [sp], #4)
+	LDR		R4, =ANS		// location for answer
+  7c:	e59f4010 	ldr	r4, [pc, #16]	; 94 <ANS+0x4>
+	STR		R3, [R4]		// store answer
+  80:	e5843000 	str	r3, [r4]
+
+00000084 <STOP>:
+	
+STOP:
+	B		STOP
+  84:	eafffffe 	b	84 <STOP>
+
+00000088 <a>:
+  88:	000004ed 	.word	0x000004ed
+
+0000008c <b>:
+  8c:	00000979 	.word	0x00000979
+
+00000090 <ANS>:
+  90:	00000000 	.word	0x00000000
+  94:	00000090 	.word	0x00000090
